@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Dapper_vs_EF.Models.Author>
+
+@{
+    ViewBag.Title = "EntityFramework";
+}
+
+<h2>EntityFramework</h2>
+
+<p>Пока так((. что-то время не расчитал. Если можно, то на выходных дозалью, ну а если нет - сам виноват))</p>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.AuthorName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuthorName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Country)
+            </td>           
+        </tr>
+    }
+
+</table>

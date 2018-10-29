@@ -209,6 +209,7 @@
     <Content Include="Views\Home\EntityFramework.cshtml" />
     <Content Include="Views\Home\Dapper.cshtml" />
     <Content Include="Views\Home\SearchBookDapper.cshtml" />
+    <Content Include="Views\Home\SearchBookEF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

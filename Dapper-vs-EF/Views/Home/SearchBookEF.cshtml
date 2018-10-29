@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Dapper_vs_EF.Models.Book>
+<br>
+<div>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BookName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookBirth)
+            </th>
+        </tr>
+
+        @foreach (var item in ViewBag.Authors)
+        {
+            <tr>
+                <td>
+                    @item
+                </td>
+                <td>
+                   
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

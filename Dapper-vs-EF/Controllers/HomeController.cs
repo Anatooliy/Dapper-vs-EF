@@ -32,6 +32,7 @@ namespace Dapper_vs_EF.Controllers
             return View();
         }
 
+        [HttpPost]
         public ActionResult SearchBookDapper(string name)
         {
             string sql = @"select BookName, BookBirth
@@ -51,7 +52,36 @@ namespace Dapper_vs_EF.Controllers
 
         public ActionResult EntityFramework()
         {
-            return View(db.Authors.ToList());
+            ViewBag.Authors = from b in db.Books
+                        join a in db.Authors
+                        on b.AuthorId equals a.Id
+                        group new { b, a } by new { a.AuthorName, a.LastName, a.Country } into g
+                        select new
+                        {
+                            Name = g.Key.AuthorName + " " + g.Key.LastName,                           
+                            Country = g.Key.Country,
+                            BookCount = g.Select(x => x.b.AuthorId).Count()
+                        };         
+            
+            return View();
+        }
+
+
+        [HttpPost]
+        public ActionResult SearchBookEF(string name)
+        {
+            ViewBag.Authors = (from b in db.Books
+                            join a in db.Authors
+                            on b.AuthorId equals a.Id
+                            where a.LastName.Contains(name)
+                            select new
+                            {
+                                b.BookName,
+                                b.BookBirth,
+                               
+                            }).ToList();
+
+            return PartialView();
         }
     }
 }

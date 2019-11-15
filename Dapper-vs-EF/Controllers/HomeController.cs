@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Dapper_vs_EF.Models;
+using Dapper_vs_EF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -22,66 +23,80 @@ namespace Dapper_vs_EF.Controllers
 
         public ActionResult Dapper()
         {
-            string sql = @"select concat(AuthorName, ' ', LastName) as 'Author', Country,  count(Books.Id) as 'BookCount'
-                            from Authors
-	                            join Books
-	                            on Authors.Id = Books.AuthorId                           
-                            group by concat(AuthorName, ' ', LastName), Country
-                            order by 1";
-            ViewBag.Authors = dapperConn.QueryMultiple(sql).Read().ToList();            
-            return View();
+            db.Database.Initialize(false);
+
+            ViewBag.ORMName = "Dapper";
+            List<AuthorInfo> autors = null;
+
+            string sql = @"select concat(a.FirstName, ' ', a.LastName) as 'FullAuthorName', c.Name as Country, count(b.Id) as 'BookCount'
+                            from Authors a
+	                            join Books b
+	                                on a.Id = b.AuthorId
+                                join Countries c
+                                    on c.Id = a.CountryId
+                            group by concat(a.FirstName, ' ', a.LastName), c.Name";
+                       
+            autors = dapperConn.Query<AuthorInfo>(sql).OrderBy(a => a.FullAuthorName).ToList();              
+
+            return View("AuthorsInfo", autors);
         }
 
         [HttpPost]
-        public ActionResult SearchBookDapper(string name)
+        public ActionResult SearchBookDapper(string searchParam)
         {
+            if (string.IsNullOrEmpty(searchParam))
+            {
+                return null;
+            }
+
             string sql = @"select BookName, BookBirth
                             from Books
 	                            join Authors
-	                            on Authors.Id = Books.AuthorId
-                            where Authors.LastName like N'%" + name + "%'";
+	                                on Authors.Id = Books.AuthorId
+                            where FirstName like N'%@Name%' or LastName like N'%@Name%'";
 
-            var allbooks = dapperConn.Query<Book>(sql).ToList();            
+            var allBooks = dapperConn.Query<Book>(sql, new { Name = searchParam.Trim() }).ToList();
 
-            if (allbooks.Count <= 0)
-            {
-                return HttpNotFound();
-            }
-            return PartialView(allbooks);
+            return PartialView("SearchedBook", allBooks);
         }
 
         public ActionResult EntityFramework()
         {
-            ViewBag.Authors = from b in db.Books
-                        join a in db.Authors
-                        on b.AuthorId equals a.Id
-                        group new { b, a } by new { a.AuthorName, a.LastName, a.Country } into g
-                        select new
-                        {
-                            Name = g.Key.AuthorName + " " + g.Key.LastName,                           
-                            Country = g.Key.Country,
-                            BookCount = g.Select(x => x.b.AuthorId).Count()
-                        };         
-            
-            return View();
+            ViewBag.ORMName = "EntityFramework";
+
+            var autors = db.Authors.Select(s => new AuthorInfo {
+                FullAuthorName = s.FirstName + " " + s.LastName,
+                Country = s.Country.Name,
+                BookCount = s.Books.Count()
+            })
+            .OrderBy(a => a.FullAuthorName)
+            .ToList();
+
+            return View("AuthorsInfo", autors);
         }
 
-
         [HttpPost]
-        public ActionResult SearchBookEF(string name)
+        public ActionResult SearchBookEntityFramework(string searchParam)
         {
-            ViewBag.Authors = (from b in db.Books
-                            join a in db.Authors
-                            on b.AuthorId equals a.Id
-                            where a.LastName.Contains(name)
-                            select new
-                            {
-                                b.BookName,
-                                b.BookBirth,
-                               
-                            }).ToList();
+            searchParam = searchParam.Trim().ToLower();
 
-            return PartialView();
+            var allbooks = db.Books
+                .Where(b => b.Author.FirstName.ToLower().Contains(searchParam) 
+                    || b.Author.LastName.ToLower().Contains(searchParam)
+                )
+                .ToList();
+
+            return PartialView("SearchedBook", allbooks);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+                dapperConn.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

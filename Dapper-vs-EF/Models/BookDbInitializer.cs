@@ -10,15 +10,14 @@ namespace Dapper_vs_EF.Models
     {
         protected override void Seed(BookContext context)
         {
-            Author author1 = new Author { AuthorName = "Оноре де", LastName = "Бальзак", Country = "Франция"};
-            Author author2 = new Author { AuthorName = "Александр", LastName = "Дюма", Country = "Франция" };
-            Author author3 = new Author { AuthorName = "Франц", LastName = "Кафка", Country = "Австро-Венгрия" };
-            Author author4 = new Author { AuthorName = "Тарас", LastName = "Шевченко", Country = "Украина" };
+            Country country1 = new Country { Name = "Франция" };
+            Country country2 = new Country { Name = "Австро-Венгрия" };
+            Country country3 = new Country { Name = "Украина" };
 
-            context.Authors.Add(author1);
-            context.Authors.Add(author2);
-            context.Authors.Add(author3);
-            context.Authors.Add(author4);
+            Author author1 = new Author { FirstName = "Оноре де", LastName = "Бальзак", Country = country1 };
+            Author author2 = new Author { FirstName = "Александр", LastName = "Дюма", Country = country1 };
+            Author author3 = new Author { FirstName = "Франц", LastName = "Кафка", Country = country2 };
+            Author author4 = new Author { FirstName = "Тарас", LastName = "Шевченко", Country = country3 };            
 
             Book book1 = new Book
             {
@@ -79,17 +78,8 @@ namespace Dapper_vs_EF.Models
                 Author = author4
             };
 
-            context.Books.Add(book1);
-            context.Books.Add(book2);
-            context.Books.Add(book3);
-            context.Books.Add(book4);
-            context.Books.Add(book5);
-            context.Books.Add(book6);
-            context.Books.Add(book7);
-            context.Books.Add(book8);
-            context.Books.Add(book9);
-            context.Books.Add(book10);
 
+            context.Authors.AddRange(new List<Author> { author1, author2, author3, author4 });
             context.Books.AddRange(new List<Book>() { book1, book2, book3, book4, book5, book6, book7, book8, book9, book10 });
 
             base.Seed(context);

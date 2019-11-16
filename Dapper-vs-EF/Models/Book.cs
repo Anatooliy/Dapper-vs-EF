@@ -9,14 +9,10 @@ namespace Dapper_vs_EF.Models
 {
     public class Book
     {
-        public int Id { get; set; }
-
-        [DisplayName("Название книги")]
+        public int Id { get; set; }        
         public string BookName { get; set; }
-
-        [DisplayName("Дата публикации")]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        
+        [DataType(DataType.Date)]        
         public DateTime? BookBirth { get; set; }
 
         public int? AuthorId { get; set; }

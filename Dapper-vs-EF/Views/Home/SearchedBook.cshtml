@@ -1,21 +1,27 @@
-﻿@model IEnumerable<Dapper_vs_EF.Models.Book>
+﻿@model IEnumerable<Dapper_vs_EF.ViewModels.BookInfo>
 
 <br>
 <div>
     <table class="table">
-        <tr>       
+        <tr>
             <th>
                 @Html.DisplayNameFor(model => model.BookName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.BookAuthor)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.BookBirth)
-            </th>        
+            </th>
         </tr>
 
     @foreach (var item in Model) {
-        <tr>       
+        <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.BookName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookAuthor)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BookBirth)

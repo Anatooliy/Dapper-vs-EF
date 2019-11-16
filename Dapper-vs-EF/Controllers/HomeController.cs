@@ -4,6 +4,7 @@ using Dapper_vs_EF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -49,13 +50,16 @@ namespace Dapper_vs_EF.Controllers
                 return null;
             }
 
-            string sql = @"select BookName, BookBirth
-                            from Books
-	                            join Authors
-	                                on Authors.Id = Books.AuthorId
-                            where FirstName like N'%@Name%' or LastName like N'%@Name%'";
+            string sql = @"select b.BookName, b.BookBirth, concat(a.FirstName, ' ', a.LastName) as 'BookAuthor'
+                            from Books b
+	                            join Authors a
+	                                on a.Id = b.AuthorId
+                            where a.FirstName like @searchParam or a.LastName like @searchParam";
 
-            var allBooks = dapperConn.Query<Book>(sql, new { Name = searchParam.Trim() }).ToList();
+            var dynamicParameters = new DynamicParameters();
+            dynamicParameters.Add("searchParam", string.Format("%{0}%", searchParam));            
+
+            var allBooks = dapperConn.Query<BookInfo>(sql, dynamicParameters).ToList();
 
             return PartialView("SearchedBook", allBooks);
         }
@@ -84,6 +88,11 @@ namespace Dapper_vs_EF.Controllers
                 .Where(b => b.Author.FirstName.ToLower().Contains(searchParam) 
                     || b.Author.LastName.ToLower().Contains(searchParam)
                 )
+                .Select(s => new BookInfo {
+                    BookName = s.BookName,
+                    BookBirth = s.BookBirth,
+                    BookAuthor = s.Author.FirstName + " " + s.Author.LastName
+                    })
                 .ToList();
 
             return PartialView("SearchedBook", allbooks);
